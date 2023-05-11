@@ -25,6 +25,7 @@ if ($portfolios->have_posts()) :
             <div class="card-body">
                 <h5 class="thumbnail-img"><?php the_post_thumbnail('thumbnail'); ?></h5>
                 <p class="card-text"><?php the_content(); ?></p>
+                <p class="card-text"><?php the_category(); ?></p>
             </div>
         </div>
 

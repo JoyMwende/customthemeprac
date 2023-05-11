@@ -86,3 +86,34 @@ function portfolio_post_type(){
     //portfolio is going to create the slug for permalink and $args is going to create the post type
 }
 add_action('init', 'portfolio_post_type');
+
+//custom taxonomy
+function career_custom_taxonomy(){
+    $labels = [
+        'name'=> 'Careers',
+        'singular_name'=>'Career',
+        'search_items'=> 'Search Careers',
+        'all_items'=>'All Careers',
+        'parent_item'=>'Parent Career',
+        'parent_item_colon'=>'Parent Career:',
+        'edit_item'=>'Edit Career',
+        'update_item'=>'Update Career',
+        'add_new_item'=>'Add New Career',
+        'new_item_name'=>'New Career Name',
+        'menu_name'=>'Careers'
+    ];
+
+    $args = [
+        'labels'=>$labels,
+        'hierarchical'=>true,
+        'show_ui'=>true,
+        'show_admin_column'=>true,
+        'query_var'=>true,
+        'rewrite'=>[
+            'slug'=>'career'
+        ]
+        ];
+
+        register_taxonomy('career', ['portfolio'], $args);
+}
+add_action('init', 'career_custom_taxonomy');
