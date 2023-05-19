@@ -151,3 +151,10 @@ function customterm_get_terms($postID, $term){
 
     return $output; 
 }
+
+//global variable
+global $successmessage;
+$successmessage;
+
+global $errormessage;
+$errormessage;
