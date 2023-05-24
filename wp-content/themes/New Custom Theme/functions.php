@@ -159,6 +159,19 @@ $successmessage;
 global $errormessage;
 $errormessage;
 
+
+//securing admin dashboard
+//new login url
+// function new_login_url($login_url){
+//     $login_url = site_url(
+//         'joy.php', 'login'
+//     );
+//     return $login_url;
+// }
+// add_filter('login_url', 'new_login_url');
+
+
+//limit login attempts
 function check_attempted_login($user, $username, $password){
     if(get_transient('attempted_login')){
         $datas = get_transient('attempted_login');
