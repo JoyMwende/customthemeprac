@@ -158,3 +158,74 @@ $successmessage;
 
 global $errormessage;
 $errormessage;
+
+function check_attempted_login($user, $username, $password){
+    if(get_transient('attempted_login')){
+        $datas = get_transient('attempted_login');
+
+        if($datas['tried'] >= 3){
+            $until = get_option("_transient_timeout_" . "attempted_login");
+            $time = time_to_go($until);
+
+            return new WP_Error('too_many_attempts' , sprintf(__('<strong> ERROR </strong>: You have reached the aunthentication limit, please try after %1$s'), $time));
+        }
+    }
+
+    return $user;
+}
+
+add_filter('authenticate', 'check_attempted_login', 30, 3);
+
+function login_failed($username){
+    if (get_transient('attempted_login')){
+        $datas = get_transient('attempted_login');
+
+        $datas['tried']++;
+
+        if($datas['tried'] <= 3) set_transient('attempted_login', $datas, 300);
+        } else {
+            $datas = [
+                'tried' => 1
+            ];
+            set_transient('attempted_login', $datas, 300);
+        }
+    
+}
+add_action('wp_login_failed', 'login_failed', 10, 1);
+function time_to_go($timestamp){
+    $periods = [
+        'second',
+        'minute',
+        'hour',
+        'day',
+        'week',
+        'month',
+        'year'
+    ];
+    $lengths = [
+        '60',
+        '60',
+        '24',
+        '7',
+        '4.35',
+        '12'
+    ];
+
+    $current_timestamp = time();
+    $difference = abs($current_timestamp - $timestamp);
+
+    for ($i = 0; $difference >= $lengths[$i] && $i < count($lengths) - 1; $i ++) {
+        $difference /= $lengths[$i];
+    }
+    //add countdown
+    $difference = round($difference);
+
+    if (isset($difference)){
+        if($difference != 1){
+            $periods[$i] .= 's';
+            $output = "$difference $periods[$i]";
+            return $output;
+        }
+    }
+    
+}
