@@ -251,8 +251,30 @@ function time_to_go($timestamp){
  * Creating custom field REST API
  */
 
- function custom_filed_rest_api(){
+ function custom_field_rest_api(){
     register_rest_field('post', 'custom_field1', ['get_callback'=>'get_custom_field']);
+
+    register_rest_route('portfolio/v1', 'c13-portfolios', [
+        'callback' => 'get_c13_portfolio',
+        'method' => 'GET',
+        'permission_callback'=>'custom_endpoint_permission',
+        'args' => [
+            'meta_key' => [
+                'required' => true,
+                'default' => '_edit_last',
+                'validate_callback' => function($param, $request, $key){
+                    return !is_numeric($param);
+                }
+            ],
+            'meta_value' => [
+                'required' => true,
+                'default' => 1,
+                'validate_callback' => function($param, $request, $key){
+                    return is_numeric($param);
+                }
+            ]
+        ]
+    ]);
  }
 
  function get_custom_field($obj){
@@ -262,4 +284,35 @@ function time_to_go($timestamp){
     return get_post_meta($post_id, 'customField1', true); //the second parameter is the name of the custom field in the frontend(wordpress)
  }
 
- add_action('rest_api_init', 'custom_filed_rest_api');
+ add_action('rest_api_init', 'custom_field_rest_api');
+
+ //custom endpoints using REST API
+ function get_c13_portfolio(WP_REST_Request $request){
+    $meta_key = $request->get_param('meta_key');
+    $meta_value = $request->get_param('meta_value');
+
+    $args = [
+        'post_type' => 'portfolio',
+        'status' =>'publish',
+        'posts_per_page'=>10,
+        'meta_query' => [[
+            'key' => $meta_key,
+            'value' => $meta_value
+        ]]
+        ];
+
+        $the_query = new WP_Query($args);
+
+        $portfolios = $the_query->posts;
+
+        return $portfolios;
+ }
+
+ //function to ensure that only logged in users can access the endpoint
+ function custom_endpoint_permission(){
+    if(is_user_logged_in()){
+        return true;
+    } else {
+        return false;
+    }
+ }
