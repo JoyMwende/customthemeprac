@@ -295,11 +295,11 @@ function time_to_go($timestamp){
                 'type'=>'integer'
             ],
             'title' => [
-                'description'=>esc_html__('The is the title of the prtfolio', 'my-textdomain'),
+                'description'=>esc_html__('This is the title of the portfolio', 'my-textdomain'),
                 'type'=>'string'
             ],
             'content' => [
-                'description'=>esc_html__('The content of the prtfolio', 'my-textdomain'),
+                'description'=>esc_html__('The content of the portfolio', 'my-textdomain'),
                 'type'=>'string'
             ]
         ]
