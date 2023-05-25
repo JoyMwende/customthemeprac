@@ -256,6 +256,7 @@ function time_to_go($timestamp){
 
     register_rest_route('portfolio/v1', 'c13-portfolios', [
         'callback' => 'get_c13_portfolio',
+        //setting permission
         'method' => 'GET',
         'permission_callback'=>'custom_endpoint_permission',
         'args' => [
@@ -273,8 +274,38 @@ function time_to_go($timestamp){
                     return is_numeric($param);
                 }
             ]
-        ]
+            ],
+            //rest api schema
+            'schema' => 'myportfolio_schema'
     ]);
+ }
+
+ function myportfolio_schema(){
+    $schema = [
+        'schema' => '',
+        'title' => 'all-portfolio',
+        'type' => 'object',
+        'properties' => [
+            'id'=> [
+                'description' => esc_html__('unique identifier of the object', 'my-textdomain'),
+                'type' => 'integer'
+            ],
+            'author' => [
+                'description'=>esc_html__('The creator of the object', 'my-textdomain'),
+                'type'=>'integer'
+            ],
+            'title' => [
+                'description'=>esc_html__('The is the title of the prtfolio', 'my-textdomain'),
+                'type'=>'string'
+            ],
+            'content' => [
+                'description'=>esc_html__('The content of the prtfolio', 'my-textdomain'),
+                'type'=>'string'
+            ]
+        ]
+            ];
+
+            return $schema;
  }
 
  function get_custom_field($obj){
@@ -305,7 +336,57 @@ function time_to_go($timestamp){
 
         $portfolios = $the_query->posts;
 
-        return $portfolios;
+        if(empty($portfolios)){
+            return new WP_Error(
+                'no_data_found',
+                'No Data Found',
+                [
+                    'status' => 404
+                ]
+                );
+        }
+
+        foreach($portfolios as $portfolio){
+            $response = custom_rest_prepare_post($portfolio, $request);
+            $data[] = custom_prepare_for_collection($response);
+        }
+
+        return rest_ensure_response($data);
+ }
+
+ function custom_rest_prepare_post($post, $request){
+    $post_data = [];
+    $schema = myportfolio_schema();
+
+    if(isset($schema['properties']['id'])){
+        $post_data['id'] = (int) $post->ID;
+    }
+    if(isset($schema['properties']['id'])){
+        $post_data['author'] = (int) $post->post_author;
+    }
+    if(isset($schema['properties']['id'])){
+        $post_data['title'] = apply_filters('post_text', $post->post_title, $post);
+    }
+    if(isset($schema['properties']['id'])){
+        $post_data['content'] = apply_filters('post_text', $post->post_content, $post);
+    }
+
+    return rest_ensure_response($post_data);
+ }
+
+ function custom_prepare_for_collection($response){
+    if(!($response instanceof WP_REST_Response)){
+        return $response;
+    }
+
+    $data = (array) $response->get_data();
+    $links = rest_get_server()::get_compact_response_links($response);
+
+    if(!empty($links)){
+        $data['_links'] = $links;
+    }
+
+    return $data;
  }
 
  //function to ensure that only logged in users can access the endpoint
