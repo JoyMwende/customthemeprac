@@ -20,7 +20,8 @@
                 Base\Enqueue::class,
                 Base\SettingsLinks::class,
                 Pages\RegisterBook::class,
-                Pages\RegisterMember::class
+                Pages\RegisterMember::class,
+                Pages\ShortCode::class
             ];
         }
     

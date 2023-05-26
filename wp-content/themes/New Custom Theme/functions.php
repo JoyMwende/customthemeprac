@@ -159,6 +159,16 @@ $successmessage;
 global $errormessage;
 $errormessage;
 
+//adding short code
+add_shortcode('c13code', function($atts){
+    $attributes = shortcode_atts([
+        'members'=>'Joel, Joy, Hope, Kimani',
+        'no_of_trainees'=>4
+    ], $atts, 'c13code');
+
+    return 'Members = ' .$attributes['members'] .' No of trainees = ' .$attributes['no_of_trainees'];
+});
+
 
 //securing admin dashboard
 //new login url
