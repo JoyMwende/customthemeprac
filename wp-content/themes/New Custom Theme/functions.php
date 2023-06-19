@@ -407,3 +407,79 @@ function time_to_go($timestamp){
         return false;
     }
  }
+
+ //password encryption and decryption
+ function encrypting_user_pwds(){
+     //check if table exists
+     global $wpdb;
+     
+     $table_name = $wpdb->prefix.'users_new';
+     
+     $new_user_tbl = "CREATE TABLE IF NOT EXISTS ".$table_name."(
+         username text NOT NULL,
+         useremail text NOT NULL,
+         phone int NOT NULL,
+         password text NOT NULL
+        );";
+        
+        require_once(ABSPATH.'wp-admin/includes/upgrade.php');
+        dbDelta($new_user_tbl);
+        
+    if (isset($_POST['btnSubmitUser'])){
+        //hash password
+        $pwd = $_POST['password'];
+        $hashed_pwd = wp_hash_password($pwd);
+
+        //store data
+        $user_data = [
+            'username' => $_POST['username'],
+            'useremail' => $_POST['useremail'],
+            'phone' => $_POST['phoneno'],
+            'password' =>  $hashed_pwd
+        ];
+
+        // var_dump($user_data);
+        $result = $wpdb->insert($table_name, $user_data);
+
+        if($result){
+            echo "<script> alert('User created successfully'); </script>";
+        } else {
+            echo "<script> alert('User not created'); </script>";
+        }
+    }
+ }
+
+ add_action('init', 'encrypting_user_pwds');
+
+ //function to compare passwords
+ function compare_password(){
+    global $wpdb;
+
+    $table_name = $wpdb->prefix.'users_new';
+
+    //first get row data
+    $result = $wpdb->get_results("SELECT * FROM $table_name WHERE username = 'Mwaniki'");
+    var_dump($result[0]->password);
+
+    //then compare passwords
+    $hashed_pwd = $result[0]->password;
+    if (wp_check_password('12345', $hashed_pwd)){
+        // var_dump('Passwords match');
+    } else {
+        // var_dump('Passwords do not match');
+    }
+
+    //many users authentication
+    //$results = $wpdb->get_results("SELECT * FROM $table_name");
+
+    // foreach($results as $result){
+    //     $hashed_pwd = $result->password;
+    //     if (wp_check_password('12345', $hashed_pwd)){
+    //         var_dump('Passwords match');
+    //     } else {
+    //         var_dump('Passwords do not match');
+    //     }
+    // }
+    
+ }
+ add_action('init', 'compare_password');
